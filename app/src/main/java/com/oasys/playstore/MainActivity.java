@@ -6,6 +6,11 @@ import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 import android.util.Xml;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import org.apache.commons.codec.binary.Hex;
 
@@ -22,26 +27,58 @@ import javax.crypto.spec.SecretKeySpec;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
+    private EditText editText,textView;
+    private Button button, decrypt_button;
+    String text;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        String text = "rcid=299900000002|dcode=999|userid=OASIS|password=O@s$s@!@#4|dt=11/22/201910:56:48AM";
-        String decrypt_text = "71ZyPBqKghnz50sJx4YWIUsfNyT27TD80vY72D1ySgM=";
-        try {
-            String id = "5120d687f85441c";
-//            String encrypt_data = encrypt(id);
-//            Log.e(TAG, "id: " + encrypt_data);
-            text += "|checksum=" + getCheckSum(text);
-            String encrypt_data = encrypt(text);
-            Log.e(TAG, "encrypt: " + encrypt_data);
+        editText = (EditText) findViewById(R.id.editText);
+        button = (Button) findViewById(R.id.button);
+        decrypt_button = (Button) findViewById(R.id.decrypt_button);
+        textView = (EditText) findViewById(R.id.textView);
+//        String text = "rcid=299900000002|dcode=999|userid=OASIS|password=Oasis23Nic1|dt=11/22/201910:56:48AM";
+        text = "rcid=299900000002|dcode=999|userid=OASIS|password=Oasis23Nic1|dt=11/22/201910:56:48AM";
+        editText.setText(text);
+
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                text = editText.getText().toString();
+                text += "|checksum=" + getCheckSum(text);
+                String encrypt_data = null;
+                try {
+                    encrypt_data = encrypt(text);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                Log.e(TAG, "encrypt: " + encrypt_data);
+                textView.setText(encrypt_data);
+            }
+        });
+
+        decrypt_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (editText.getText().toString().length() == 0) {
+                    Toast.makeText(MainActivity.this, "Enter value", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                String decrypt_text = "Empty";
+                try {
+                    decrypt_text = decrypt(editText.getText().toString());
+                } catch (Exception e) {
+                    decrypt_text = e.toString();
+                    e.printStackTrace();
+                }
+                textView.setText("" + decrypt_text);
+            }
+        });
 //            Log.e(TAG, "decrypt: " + decrypt(decrypt_text));
 
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     protected String getCheckSum(String str1) {
